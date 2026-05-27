@@ -1,136 +1,288 @@
-"use client";
+/*"use client";
 
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Image from "next/image";
-import "../styles/styles.css";
+import React, { useEffect, useState } from "react";
+import styles from "./api.module.css";
 
-export default function About() {
+function Api() {
+  const [movies, setMovies] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState();
+   const [error, setError] = useState("");
+   const [query, setQuery] = useState("");
+
+
+  useEffect(() => {
+    GodFather();
+  }, []);
+
+
+
+
+
+
+
+
+  async function GodFather() {
+ 
+
+
+
+    const url = "https://www.omdbapi.com/?apikey=7af605d6&s=Godfather";
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.Response === "True") { 
+        setMovies(data.Search);
+        setTotal(data.totalResults);   
+      } else {
+        console.error("API returned Response: false");
+      }
+    } catch (err) {
+      console.error("Error fetching movies:", err);
+    } finally {
+       setLoading(false);
+    }
+  }
+
+
+
+
+async function handleSearch(e) {
+    e.preventDefault();
+    if (!query) return;
+
+    setLoading(true);
+    setError("");
+
+
+    try {
+      const url = `https://www.omdbapi.com/?apikey=7af605d6&s=${encodeURIComponent(query)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.Response === "True") {
+        setMovies(data.Search);
+        setTotal(data.totalResults);
+      } else {
+        setMovies([]);
+        setTotal(0);
+        setError(data.Error || "No movies found");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch movies");
+    } finally {
+      setLoading(false);
+    }
+}
+
+
+
+
+  if (loading) return <p>Loading...</p>;
+
   return (
-    <div>
-      
+    <div className={styles.container}>
+      <h1>Movies from API</h1>
+      <p>Total Results: {total}</p>
 
-      <div className="about-container">
-        <h2 className="pb-2 border-bottom">About Us</h2>
+ 
+      <form onSubmit={handleSearch} style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Type a movie name..."
+          style={{ padding: "8px", width: "250px" }}
+        />
+         <button type="submit" style={{ padding: "8px 12px", marginLeft: "8px" }}>
+          Search
+        </button>
+        </form>
 
-        <div className="hero-container">
-          <div className="hero-row">
 
-            {/* LEFT SIDE TEXT */}
-            <div className="hero-text">
-              <p className="lead">
-                Welcome to Women in Workforce, the premier platform dedicated to empowering and promoting women in the
-                workplace. Our platform is designed to connect talented and ambitious women with diverse employment opportunities 
-                across the United Kingdom, Europe, and India.
-              </p>
+         {error && <p style={{ color: "red" }}>{error}</p>}
+      {!error && <p>Total Results: {total}</p>}
 
-              <p className="lead">
-                At Women in Workforce, we understand the unique challenges and opportunities that women face in their professional
-                lives. Our mission is to bridge the gender gap in various industries by providing a supportive and inclusive space for 
-                women to thrive. Whether you are a recent graduate, a mid-career professional, or a seasoned expert, we are here to 
-                assist you in advancing your career and reaching new heights.
-              </p>
 
-              <p className="lead">
-                One of the core features of Women in Workforce is our exclusive job board, where employers from a wide range of 
-                sectors actively seek to hire talented women. By curating job listings from esteemed companies, both large and 
-                small, we provide a curated platform that prioritizes equal opportunity and gender diversity. Whether you are seeking 
-                full-time positions, part-time work, freelance opportunities, or even remote roles, our platform caters to a diverse 
-                array of professional aspirations.
-              </p>
 
-              <p className="lead">
-                In addition to connecting women with employment opportunities, we believe in fostering personal and professional 
-                growth. Through our engaging podcasts and insightful webinars, we bring you inspiring stories, expert advice, and 
-                valuable insights from successful women leaders across various fields. These resources serve as a source of inspiration, 
-                education, and mentorship, helping you navigate the challenges and make informed decisions as you progress in your 
-                career.
-              </p>
-
-              <p className="lead">
-                Women in Workforce is not just a platform; it is a community of like-minded individuals who share a common goal of 
-                empowering women in the workforce. We encourage networking, mentorship, and collaboration among our members, 
-                fostering a supportive environment where you can connect with peers, seek guidance, and build meaningful 
-                relationships.
-              </p>
-
-              <p className="lead">
-                Whether you are an employer committed to gender diversity in your organization or a talented woman seeking 
-                professional growth, Women in Workforce is here to support you every step of the way. Join our platform today and 
-                embark on a journey of empowerment, inspiration, and career advancement. Together, let's shape a more inclusive and 
-                equal future for women in the workforce.
-              </p>
-
-              <p className="lead copyright">
-                ©2023 WomenInForcement. All rights reserved.
-              </p>
-            </div>
-
-            {/* RIGHT SIDE IMAGE */}
-            <div className="hero-image">
-              <Image
-                src="/images/Group22.png"
-                alt="Hero"
-                width={450}
-                height={450}
-                style={{ maxWidth: "100%", height: "auto" }}
-                loading="lazy"
-              />
-            </div>
-
+      <div className={styles.grid}>
+        { movies && movies.map((movie, index) => (
+          <div key={index} className={styles.card}>
+            <img
+              src={movie.Poster !== "N/A" ? movie.Poster : "/placeholder.png"}
+              alt={movie.Title}
+              width={150}
+              height={200}
+              className={styles.poster}
+            />
+            <ul className={styles.movieInfo}>
+              <li><strong>Title:</strong> {movie.Title}</li>
+              <li><strong>Year:</strong> {movie.Year}</li>
+              <li><strong>Type:</strong> {movie.Type}</li>
+            </ul>
           </div>
-        </div>
+        ))}
       </div>
-
-       <div className="about-container" style={{ marginTop: "4rem" }}>
-        <div className="hero-container">
-          <div className="hero-row reverse-row">
-
-            {/* LEFT SIDE IMAGE */}
-            <div className="hero-image">
-              <Image
-                src="/images/Group75.png" // Add your second image here
-                alt="Second Hero"
-                width={450}
-                height={450}
-                style={{ maxWidth: "100%", height: "auto" }}
-                loading="lazy"
-              />
-            </div>
-
-            {/* RIGHT SIDE TEXT */}
-            <div className="hero-text">
-              <p className="lead">
-                In addition to connecting women with employment opportunities, we believe in fostering personal and professional 
-                growth. Through our engaging podcasts and insightful webinars, we bring you inspiring stories, expert advice, and 
-                valuable insights from successful women leaders across various fields.
-              </p>
-
-              <p className="lead">
-                Women in Workforce is not just a platform; it is a community of like-minded individuals who share a common goal of 
-                empowering women in the workforce. We encourage networking, mentorship, and collaboration among our members, 
-                fostering a supportive environment where you can connect with peers, seek guidance, and build meaningful 
-                relationships.
-              </p>
-              <p className="lead">
-                Whether you are an employer committed to gender diversity in your organization or a talented woman seeking 
-professional growth, Women in Workforce is here to support you every step of the way. Join our platform today and 
-embark on a journey of empowerment, inspiration, and career advancement. Together, let's shape a more inclusive and 
-equal future for women in the workforce.
-              </p>
-
-              <p className="lead copyright">
-                ©2023 WomenInForcement. All rights reserved.
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      
     </div>
   );
 }
 
-     
+export default Api;*/
+
+
+
+
+
+"use client";
+
+import React, { useEffect, useState } from "react";
+import styles from "./api.module.css";
+
+function Api() {
+  const [movies, setMovies] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+
+ 
+  useEffect(() => {
+    GodFather(false); 
+  }, []);
+
+  
+  useEffect(() => {
+    if (query.trim().length<3) return; 
+
+    const delay = setTimeout(() => {
+      fetchMovies(query, true); 
+    }, 500);
+
+    return () => clearTimeout(delay); 
+  }, [query]);
+
+  
+  async function GodFather(showLoader = false) {
+    if (showLoader) setLoading(true);
+    setError("");
+
+    const url = "https://www.omdbapi.com/?apikey=7af605d6&s=Godfather";
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.Response === "True") {
+        setMovies(data.Search);
+        setTotal(data.totalResults);
+      } else {
+        console.error("API returned Response: false");
+      }
+    } catch (err) {
+      console.error("Error fetching movies:", err);
+    } finally {
+      if (showLoader) setLoading(false);
+    }
+  }
+
+  async function fetchMovies(searchTerm, showLoader = true) {
+   if (searchTerm.trim().length < 3) {
+      setMovies([]);
+      setTotal(0);
+      setError("");
+      return; 
+    }
+   
+   
+   
+   
+    if (showLoader) setLoading(true);
+    setError("");
+
+    try {
+      const url = `https://www.omdbapi.com/?apikey=7af605d6&s=${encodeURIComponent(
+        searchTerm
+      )}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.Response === "True") {
+        setMovies(data.Search);
+        setTotal(data.totalResults);
+      } else {
+        setMovies([]);
+        setTotal(0);
+        setError(data.Error || "No movies found");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch movies");
+    } finally {
+      if (showLoader) setLoading(false);
+    }
+  }
+
+  async function handleSearch(e) {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    fetchMovies(query, true); 
+  }
+
+  
+  return (
+    <div className={styles.container}>
+      <h1>Movies from API</h1>
+
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Type a movie name..."
+          style={{ padding: "8px", width: "250px" }}
+        />
+        <button type="submit" style={{ padding: "8px 12px", marginLeft: "8px" }}>
+          Search
+        </button>
+      </form>
+
+      
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {!loading && !error && <p>Total Results: {total}</p>}
+
+      
+      <div className={styles.grid}>
+        {movies &&
+          movies.map((movie, index) => (
+            <div key={index} className={styles.card}>
+              <img
+                src={movie.Poster !== "N/A" ? movie.Poster : "/placeholder.png"}
+                alt={movie.Title}
+                width={150}
+                height={200}
+                className={styles.poster}
+              />
+              <ul className={styles.movieInfo}>
+                <li>
+                  <strong>Title:</strong> {movie.Title}
+                </li>
+                <li>
+                  <strong>Year:</strong> {movie.Year}
+                </li>
+                <li>
+                  <strong>Type:</strong> {movie.Type}
+                </li>
+              </ul>
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+}
+
+export default Api;
